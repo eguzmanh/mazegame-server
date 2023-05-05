@@ -7,19 +7,23 @@ public class NetworkingServer
 {
 	private GameServerUDP thisUDPServer;
 	private GameServerTCP thisTCPServer;
+	private NPCcontroller npcCtrl;
 
 	public NetworkingServer(int serverPort, String protocol) 
-	{	try 
+	{	
+		try 
 		{	if(protocol.toUpperCase().compareTo("TCP") == 0)
-			{	thisTCPServer = new GameServerTCP(serverPort);
-			}
-			else
-			{	thisUDPServer = new GameServerUDP(serverPort);
-			}
+		{	thisTCPServer = new GameServerTCP(serverPort, npcCtrl);
+		} else {	
+			npcCtrl = new NPCcontroller();
+			thisUDPServer = new GameServerUDP(serverPort, npcCtrl);
+			npcCtrl.start(thisUDPServer);
+		}
 		} 
 		catch (IOException e) 
 		{	e.printStackTrace();
 		}
+
 	}
 
 	public static void main(String[] args) 

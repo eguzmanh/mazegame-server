@@ -9,8 +9,12 @@ import tage.networking.server.IClientInfo;
 
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
-	public GameServerUDP(int localPort) throws IOException 
-	{	super(localPort, ProtocolType.UDP);
+	NPCcontroller npcCtrl;
+
+	public GameServerUDP(int localPort, NPCcontroller npc) throws IOException 
+	{	
+		super(localPort, ProtocolType.UDP);
+		npcCtrl = npc;
 	}
 
 	@Override
@@ -68,7 +72,122 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			{	UUID clientID = UUID.fromString(messageTokens[1]);
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendMoveMessages(clientID, pos);
-	}	}	}
+			}
+			// Case where server receives request for NPCs
+			// Received Message Format: (needNPC,id)
+			if(messageTokens[0].compareTo("needNPC") == 0)
+			{ 
+				System.out.println("server got a needNPC message");
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				sendNeedNPCMsg(clientID);
+			}
+
+			// Case where server receives notice that an av is close to the npc
+			// Received Message Format: (isnear,id)
+			if(messageTokens[0].compareTo("isnear") == 0) { 
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				handleNearTiming(clientID);
+			}	
+		}
+	}
+
+	public void sendNeedNPCMsg(UUID clientID) {
+		try { 
+			System.out.println("server sending info for client to create the NPC GameObject");
+			String message = new String("createNPC");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			sendPacket(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+
+	public void sendNPCinfo() {
+		try { 
+			// System.out.println("server sending NPC info");
+			String message = new String("updateNPC");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			sendPacketToAll(message);
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+	
+	public void sendNPCstart(UUID clientID) {
+		try { 
+			System.out.println("server telling clients starting with the NPC");
+			String message = new String("Starting NPC, " + clientID.toString());
+			forwardPacketToAll(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }	
+	}
+
+	public void handleNearTiming(UUID clientID) { npcCtrl.setNearFlag(true); }
+
+	public void sendCheckForAvatarNear() { 
+		try { 
+			String message = new String("isnr");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getCriteria());
+			sendPacketToAll(message);
+		} catch (IOException e) { 
+			System.out.println("couldnt send msg"); e.printStackTrace(); 
+		}
+	}
+
+	public void sendCheckForGetBig() { 
+		try { 
+			String message = new String("gb");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getCriteria());
+			sendPacketToAll(message);
+		} catch (IOException e) { 
+			System.out.println("couldnt send msg"); e.printStackTrace(); 
+		}
+	}
+
+	public void sendCheckForGetSmall() { 
+		try { 
+			String message = new String("gs");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getCriteria());
+			sendPacketToAll(message);
+		} catch (IOException e) { 
+			System.out.println("couldnt send msg"); e.printStackTrace(); 
+		}
+	}
+
+	public void sendCheckForOneSecPassed() { 
+		try { 
+			String message = new String("osp");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getCriteria());
+			sendPacketToAll(message);
+		} catch (IOException e) { 
+			System.out.println("couldnt send msg"); e.printStackTrace(); 
+		}
+	}
+
+	// ------------ SENDING NPC MESSAGES -----------------
+	// Informs clients of the whereabouts of the NPCs.
+	public void sendCreateNPCmsg(UUID clientID, String[] position) { 
+		try { 
+			System.out.println("server telling clients about an NPC");
+			String message = new String("createNPC," + clientID.toString());
+			message += "," + position[0];
+			message += "," + position[1];
+			message += "," + position[2];
+			forwardPacketToAll(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+
 
 	// Informs the client who just requested to join the server if their if their 
 	// request was able to be granted. 
@@ -169,4 +288,5 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
+
 }
