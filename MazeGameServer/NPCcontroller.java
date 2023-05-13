@@ -19,7 +19,7 @@ public class NPCcontroller {
     long thinkStartTime, tickStartTime;
     long lastThinkUpdateTime, lastTickUpdateTime;
     GameServerUDP server;
-    double criteria = 4.0;
+    double criteria = 2.0;
 
     public void updateNPCs(){ 
         npc.updateLocation();
@@ -62,13 +62,13 @@ public class NPCcontroller {
         } 
     }
 
-
     public void setupBehaviorTree() { 
+        // bt.insertAtRoot(new BTSequence(10));
         bt.insertAtRoot(new BTSequence(10));
-        bt.insertAtRoot(new BTSequence(20));
         // bt.insert(10, new OneSecPassed(this,npc,false));
         // bt.insert(10, new GetSmall(npc));
-        bt.insert(20, new AvatarNear(server,this,npc,false));
+        bt.insert(10, new AvatarNear(server,this,npc,false));
+        bt.insert(10, new GetBig(npc));
     } 
 
     public NPC getNPC() { return npc; }

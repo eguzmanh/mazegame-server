@@ -75,13 +75,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendMoveMessages(clientID, pos);
 			}
-
-			if (messageTokens[0].compareTo("rotate") == 0)
-			{
-				UUID clientID = UUID.fromString(messageTokens[1]);
-				String[] rotatePos = {messageTokens[2], messageTokens[3], messageTokens[4], messageTokens[5]};
-				sendRotateMessage(clientID, rotatePos);
-			}
 			// Case where server receives request for NPCs
 			// Received Message Format: (needNPC,id)
 			if(messageTokens[0].compareTo("needNPC") == 0)
@@ -91,31 +84,12 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				sendNeedNPCMsg(clientID);
 			}
 
-			if (messageTokens[0].compareTo("createNPC") == 0)
-			{
-				System.out.print("SERVER RECEIVE MESSAGE FROM CLIENT THAT IT CREATED NPC");
-				UUID npcID = UUID.fromString(messageTokens[1]);
-				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
-				sendCreateNPCmsg(npcID, pos);
-			}
 			// Case where server receives notice that an av is close to the npc
 			// Received Message Format: (isnear,id)
-			if(messageTokens[0].compareTo("isNearAv") == 0) { 
-				Boolean isNear = Boolean.parseBoolean(messageTokens[1]);
-				String[] playerPos = {messageTokens[2], messageTokens[3], messageTokens[4]};
-				handleAvNearTiming(playerPos, isNear);
+			if(messageTokens[0].compareTo("isnear") == 0) { 
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				handleNearTiming(clientID);
 			}	
-
-			if(messageTokens[0].compareTo("isNearGhst") == 0) { 
-				Boolean isNear = Boolean.parseBoolean(messageTokens[1]);
-				String[] ghostPos = {messageTokens[2], messageTokens[3], messageTokens[4]};
-				handleAvNearTiming(ghostPos, isNear);
-			}
-			
-			if (messageTokens[0].compareTo("npcinfo") == 0)
-			{
-				System.out.println("SERVER GOT NPCINFO ===================================================================");
-			}
 		}
 	}
 
@@ -137,8 +111,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			message += "," + (npcCtrl.getNPC()).getX();
 			message += "," + (npcCtrl.getNPC()).getY();
 			message += "," + (npcCtrl.getNPC()).getZ();
-			message += "," + npcCtrl.getCriteria();
-			message += "," + npcCtrl.getNearFlag();
 			sendPacketToAll(message);
 		} catch (IOException e) { e.printStackTrace(); }
 	}
@@ -151,27 +123,7 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		} catch (IOException e) { e.printStackTrace(); }	
 	}
 
-	public void handleAvNearTiming(String[] playerPos, Boolean isNear) { 
-		npcCtrl.setNearFlag(isNear);
-		(npcCtrl.getNPC()).setSeePlyr(isNear);
-		Vector3f player = new Vector3f(
-			Float.parseFloat(playerPos[0]),
-			Float.parseFloat(playerPos[1]),
-			Float.parseFloat(playerPos[2])
-		);
-		(npcCtrl.getNPC()).setTargetLocationAvatar(player);
-	}
-
-	public void handleGhstNearTiming(String[] ghostPos, Boolean isNear) { 
-		npcCtrl.setNearFlag(isNear);
-		(npcCtrl.getNPC()).setSeeGhost(isNear);
-		Vector3f ghost = new Vector3f(
-			Float.parseFloat(ghostPos[0]),
-			Float.parseFloat(ghostPos[1]),
-			Float.parseFloat(ghostPos[2])
-		);
-		(npcCtrl.getNPC()).setTargetLocationGhost(ghost);
-	}
+	public void handleNearTiming(UUID clientID) { npcCtrl.setNearFlag(true); }
 
 	public void sendCheckForAvatarNear() { 
 		try { 
@@ -338,23 +290,5 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 		catch (IOException e) 
 		{	e.printStackTrace();
 	}	}
-
-	public void sendRotateMessage(UUID clientID, String[] rotatePos)
-	{
-		try 
-		{	
-			String message = new String("rotate," + clientID.toString());
-			message += "," + rotatePos[0];
-			message += "," + rotatePos[1];
-			message += "," + rotatePos[2];
-			message += "," + rotatePos[3];
-			//System.out.println("=============================== SERVER MESSAGE: " + message);
-			forwardPacketToAll(message, clientID);
-		} 
-		catch (IOException e) 
-		{	
-			e.printStackTrace();
-		}
-	}
 
 }

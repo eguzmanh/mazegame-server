@@ -9,9 +9,12 @@ import tage.networking.server.IClientInfo;
 
 public class GameServerTCP extends GameConnectionServer<UUID> 
 {
+	private NPCcontroller npcCtrl;
+
 	public GameServerTCP(int localPort, NPCcontroller npc) throws IOException 
 	{		
 		super(localPort, ProtocolType.TCP);
+		npcCtrl = npc;
 	}
 	
 	@Override
