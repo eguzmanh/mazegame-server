@@ -14,7 +14,6 @@ public class AvatarNear extends BTCondition {
 
     protected boolean check() { 
         server.sendCheckForAvatarNear();
-        System.out.println("I sense that the avatar is near");
         return npcc.getNearFlag();
     } 
 }
