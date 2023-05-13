@@ -9,6 +9,8 @@ import org.joml.Vector3f;
 import tage.networking.server.GameConnectionServer;
 import tage.networking.server.IClientInfo;
 
+import org.joml.*;
+
 public class GameServerUDP extends GameConnectionServer<UUID> 
 {
 	NPCcontroller npcCtrl;
@@ -116,9 +118,29 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			{
 				System.out.println("SERVER GOT NPCINFO ===================================================================");
 			}
+
+			if (messageTokens[0].compareTo("gameWinner") == 0)
+			{
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
+				
+				sendGameWinnerData(clientID, pos);
+				System.out.println("We have a winner. GAME OVER!!!!");
+
+			}
 		}
 	}
 
+	public void sendGameWinnerData(UUID clientID, String[] position) {
+		try { 
+			System.out.println("server telling clients about an NPC");
+			String message = new String("gameWinnerData," + clientID.toString());
+			message += "," + position[0];
+			message += "," + position[1];
+			message += "," + position[2];
+			forwardPacketToAll(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }
+	}
 	public void sendNeedNPCMsg(UUID clientID) {
 		try { 
 			System.out.println("server sending info for client to create the NPC GameObject");
