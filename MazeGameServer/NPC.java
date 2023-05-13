@@ -26,8 +26,15 @@ public class NPC {
     public double getSize() { return size; }
 
     public void updateLocation() { 
-        if (locationX > 10) dir=-0.1;
-        if (locationX < -10) dir=0.1;
-        locationX = locationX + dir;
+        double centerX = 0.0;
+        double centerZ = 0.0;
+        double radius = 15.0;
+    
+        // Calculate new X and Z coordinates based on circle equation
+        locationX = centerX + radius * Math.cos(dir);
+        locationZ = centerZ + radius * Math.sin(dir);
+    
+        // Increment direction to continue moving in the circle
+        dir += 0.05;
     } 
 }
