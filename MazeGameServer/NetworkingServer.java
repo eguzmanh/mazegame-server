@@ -11,19 +11,19 @@ public class NetworkingServer
 
 	public NetworkingServer(int serverPort, String protocol) 
 	{	
+		npcCtrl = new NPCcontroller();
+
 		try 
 		{	if(protocol.toUpperCase().compareTo("TCP") == 0)
 		{	thisTCPServer = new GameServerTCP(serverPort, npcCtrl);
 		} else {	
-			npcCtrl = new NPCcontroller();
 			thisUDPServer = new GameServerUDP(serverPort, npcCtrl);
-			npcCtrl.start(thisUDPServer);
 		}
 		} 
 		catch (IOException e) 
 		{	e.printStackTrace();
 		}
-
+		npcCtrl.start(thisUDPServer);
 	}
 
 	public static void main(String[] args) 

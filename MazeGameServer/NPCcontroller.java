@@ -3,6 +3,7 @@ package MazeGameServer;
 import java.util.Random;
 
 import tage.ai.behaviortrees.BTCompositeType;
+import tage.ai.behaviortrees.BTSelector;
 import tage.ai.behaviortrees.BTSequence;
 import tage.ai.behaviortrees.BehaviorTree;
 
@@ -64,11 +65,10 @@ public class NPCcontroller {
 
     public void setupBehaviorTree() { 
         // bt.insertAtRoot(new BTSequence(10));
-        bt.insertAtRoot(new BTSequence(10));
+        bt.insertAtRoot(new BTSelector(10));
         // bt.insert(10, new OneSecPassed(this,npc,false));
         // bt.insert(10, new GetSmall(npc));
         bt.insert(10, new AvatarNear(server,this,npc,false));
-        bt.insert(10, new GetBig(npc));
     } 
 
     public NPC getNPC() { return npc; }
