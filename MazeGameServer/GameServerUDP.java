@@ -102,7 +102,26 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 				System.out.println("We have a winner. GAME OVER!!!!");
 
 			}
+
+			if (messageTokens[0].compareTo("playerTexture") == 0)
+			{
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				// String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
+				sendGhostAvatarTexture(clientID, messageTokens[2]);
+				// sendGameWinnerData(clientID, pos);
+				System.out.println("We have a winner. GAME OVER!!!!");
+
+			}
 		}
+	}
+
+	public void sendGhostAvatarTexture(UUID clientID, String color){
+		try  {
+			System.out.println("Sending the texture color for the avatar");
+			String message = new String("ghostAvatarTexture," + clientID.toString());
+			message += "," + color;
+			forwardPacketToAll(message, clientID);
+		} catch (IOException e) { e.printStackTrace(); }
 	}
 
 	public void sendGameWinnerData(UUID clientID, String[] position) {
